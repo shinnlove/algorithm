@@ -187,7 +187,7 @@ Status preOrderTraverse(BiTree root, Status *(Visit)(TElemType e)) {
 }
 
 /**
- * 树的中序遍历。
+ * 递归型——树的中序遍历。
  *
  * 特别注意：这里栈压入的元素是树结点指针、或树根指针。
  * 于是操作push、pop、getTop都要看清楚，如果是元素、则直接就是指针；如果是指向元素的指针、就传入指针的地址!!!
@@ -196,7 +196,7 @@ Status preOrderTraverse(BiTree root, Status *(Visit)(TElemType e)) {
  * @param Visit
  * @return
  */
-Status inOrderTraverse(BiTree root, Status *(Visit)(TElemType e)) {
+Status inOrderTraverseRecursive(BiTree root, Status *(Visit)(TElemType e)) {
     // 初始化辅助栈
     SqStack stack;
     SqStackPoint sp = &stack;
@@ -234,4 +234,44 @@ Status inOrderTraverse(BiTree root, Status *(Visit)(TElemType e)) {
         } // if
 
     } // while
+}
+
+/**
+ * 非递归型树的中根遍历。
+ *
+ * @param root
+ * @param Visit
+ * @return
+ */
+Status inOrderTraverse(BiTree root, Status *(Visit)(TElemType e)) {
+    // 初始化辅助栈
+    SqStack stack;
+    SqStackPoint sp = &stack;
+
+    // 遍历指针(一开始指向根节点)
+    BiTree p = root;
+
+    while (p || !stackEmpty(stack)) {
+        if (p) {
+            // 根指针进栈、遍历左子树
+            push(sp, p);
+            p = p->lchild;
+        } else {
+            // p空可能：
+            //  1.1 整棵树空
+            //  1.2 是走到了左子树的叶子节点左孩子
+
+            // 碰到空指针弹出一个压栈元素访问
+            pop(sp, &p);
+
+            if (!Visit(p->data)) {
+                return ERROR;
+            }
+
+            // 访问这个结点的右孩子
+            p = p->rchild;
+        }
+    } // while
+
+    return OK;
 }

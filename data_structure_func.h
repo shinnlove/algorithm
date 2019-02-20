@@ -46,5 +46,9 @@ Status createBiTree(BiTree *root);
 // 先根遍历二叉树
 Status preOrderTraverse(BiTree root, Status *(Visit)(TElemType e));
 
-// 中根遍历二叉树
+// 中根遍历二叉树(递归型)
+Status inOrderTraverseRecursive(BiTree root, Status *(Visit)(TElemType e));
+
+// 中根遍历二叉树(非递归)
 Status inOrderTraverse(BiTree root, Status *(Visit)(TElemType e));
+

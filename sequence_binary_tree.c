@@ -35,8 +35,12 @@ int main() {
     printf("先序遍历二叉树开始：\n");
     preOrderTraverse(tree, v);
 
-    // 中序
-    printf("中序遍历二叉树开始：\n");
+    // 中序递归
+    printf("中序递归遍历二叉树开始：\n");
+    inOrderTraverseRecursive(tree, v);
+
+    // 中序非递归
+    printf("中序非递归遍历二叉树开始：\n");
     inOrderTraverse(tree, v);
 
     return 0;
