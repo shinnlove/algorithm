@@ -6,8 +6,16 @@
 #include <mm_malloc.h>
 #include "data_structure_func.h"
 
-#define STACK_INIT_SIZE 100
-#define STACK_INCREMENT 10
+/**
+ * 访问一个元素，输出其值。
+ *
+ * @param e
+ * @return
+ */
+Status visit(TElemType e) {
+    printf("current visited: e=%d\n", e);
+    return OK;
+}
 
 /**
  * 初始化空栈。
@@ -106,7 +114,6 @@ Status pop(SqStackPoint sp, SElemType *e) {
     return OK;
 }
 
-
 /**
  * 递归创建一棵二叉树。
  *
@@ -138,7 +145,7 @@ Status createBiTree(BiTree *root) {
         *root = NULL;
     } else {
         // 为当前子树、新根、结点分配内存
-        BiTree current = (BiTNode *) malloc(LEN);
+        BiTree current = (BiTNode *) malloc(BiTNodeLEN);
         if (!current) {
             exit(OVERFLOW);
         }
@@ -302,4 +309,174 @@ Status postOrderTraverseRecursive(BiTree root, Status *(Visit)(TElemType e)) {
     return OK;
 
 }
+
+/**
+ * 创建一颗可以被线索化的二叉树。
+ *
+ * @param root  线索二叉树的根结点指针
+ * @return
+ */
+Status createBiThrTree(BiThrTree *root) {
+
+    printf("请按顺序输入线索二叉树的根结点，输入0代表空树或结束：\n");
+
+    int data;
+    scanf("%d", &data);
+
+
+    if (data == 0) {
+        *root = NULL;
+    } else {
+        // 为当前子树、新根、结点分配内存
+        BiThrTree current = (BiThrNode *) malloc(BiThrNodeLEN);
+        if (!current) {
+            exit(OVERFLOW);
+        }
+
+        // !!!让形参指针内的地址指向本结点地址
+        // 也就是让上一次的根节点地址指向自己
+        *root = current;
+
+        // 当前节点(自己作为根结点)赋值
+        current->data = data;
+
+        // 创建线索左子树
+        createBiThrTree(&current->lchild);
+        // 创建线索右子树
+        createBiThrTree(&current->rchild);
+    }
+    return OK;
+}
+
+/**
+ * 对线索二叉树进行线索化
+ *
+ * @param tree      形参变量，进入函数后是指向`BiThrTree`类型的一个指针，初始化指向根结点指针。
+ * @param root      原来指向根节点的指针
+ * @return          线索化成功返回1
+ */
+Status inOrderThreading(BiThrTree *tree, BiThrTree root) {
+
+    // 先建立线索化二叉树的头节点
+    BiThrTree headNode = (BiThrNode *) malloc(BiThrNodeLEN);
+    if (!headNode) {
+        exit(OVERFLOW);
+    }
+
+    // 头结点挂到线索二叉树上
+    *tree = headNode;
+
+    // 头节点左孩子永远指向一颗非空树，因此是Link
+    headNode->LTag = Link;
+
+    // 头节点右孩子指向最后一个结点
+    headNode->RTag = Thread;
+    // 但如果线索化的是空树，头节点右指针就要指向自己!!后续线索化后会指向最后一个结点
+    headNode->rchild = headNode;
+
+    if (!root) {
+        // 若二叉树空、头节点左子树指针回指
+        headNode->lchild = headNode;
+    } else {
+        // 不空则线索化传入的这棵树
+        headNode->lchild = root;
+
+        // 线索化二叉树过程中经过的上个结点，是一个指向结点指针的游标
+        // 初始化的时候指向线索头节点而不是二叉树的根
+        BiThrTree pre = headNode;
+
+        // 递归线索化、并不断改pre的值
+        // 但是线索化是从树根开始的，头节点不进行线索化
+        inThreading(&root, &pre);
+
+        // 最后一个结点后继指回线索头节点
+        pre->rchild = headNode;
+        pre->RTag = Thread;
+
+        // 头节点后继是最后一个结点
+        headNode->rchild = pre;
+    }
+
+    return OK;
+}
+
+/**
+ * 中序递归线索化二叉树。
+ *
+ * 其中`(*current)->lchild`就是当前要线索化结点的左孩子指针，
+ * 再取&就是左孩子指针的地址，传入做下一次线索化的结点位置。
+ *
+ * @param current   线索化当前结点的指针，从根节点开始。
+ * @param pre       线索化上一个结点的指针，从线索头结点开始，线索头结点左孩子指向根节点。
+ */
+void inThreading(BiThrTree *current, BiThrTree *pre) {
+    if (*current) {
+
+        // 线索化当前结点左子树
+        // 此时不是`&((*pre)->rchild)`，因为递归到左子树叶子节点，此时前驱是头节点，所以pre不能动!!
+        inThreading(&((*current)->lchild), pre);
+
+        // 建立当前结点前驱线索->看当前结点的左孩子是否为空
+        if (!(*current)->lchild) {
+            // 当前结点没有左孩子，当前结点指向前驱(地址!!)
+            (*current)->LTag = Thread;
+            (*current)->lchild = *pre;
+        }
+
+        // 上一个结点后继线索->看上一个结点的右孩子是否为空
+        if (!(*pre)->rchild) {
+            // 先前结点没有右孩子，则先前结点的后继指向当前结点(地址!!)
+            (*pre)->RTag = Thread;
+            (*pre)->rchild = *current;
+        }
+
+        // 同步两者指针所指结点地址（切莫同步形参!!!）
+        *pre = *current;
+
+        // 线索化当前结点右子树
+        inThreading(&((*current)->rchild), pre);
+
+    } // if
+}
+
+/**
+ * 中序遍历线索二叉树
+ *
+ * @param root      线索二叉树的头结点
+ * @param Visit
+ * @return
+ */
+Status inOrderTraverse_Thr(BiThrTree root, Status *(Visit)(TElemType e)) {
+    // 当前遍历游标指针（初始位置不是根节点是头结点!!）
+    BiThrTree p = root->lchild;
+
+    // 空树、或线索二叉树遍历一圈后游标会回到线索头结点!
+    while (p != root) {
+
+        // 有左孩子一直往下走（最左下角的指针原来为空、现在它指向线索头结点且Thread类型）
+        while (p->LTag == Link) {
+            p = p->lchild;
+        }
+
+        // 此时p一定是最左子树的叶子节点
+        // 或者是一个根节点没有左子树、指针指向前驱的结点（这种指针初始化指向线索头结点）
+        if (!Visit(p->data)) {
+            return ERROR;
+        }
+
+        // 左、中、右访问原来是弹出空指针再弹出根；现在变成直接访问线索得到根
+        // `p->rchild != root`这个条件代表p是最后一个结点了
+        // 这里主要是解决没有右子树的case!!!
+        while (p->RTag == Thread && p->rchild != root) {
+            p = p->rchild;
+            Visit(p->data);
+        }
+
+        // 真正有右子树的、访问右子树，等到下一轮循环去visit
+        p = p->rchild;
+
+    } // while
+
+    return OK;
+} // inOrderTraverse_Thr
 

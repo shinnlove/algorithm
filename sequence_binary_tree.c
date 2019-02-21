@@ -5,18 +5,6 @@
 #include <stdio.h>
 #include "data_structure_func.h"
 
-/**
- * 访问一个元素，输出其值。
- *
- * @param e
- * @return
- */
-Status visit(TElemType e) {
-    printf("current visited: e=%d\n", e);
-    return OK;
-}
-
-
 int main() {
 
     // 一颗二叉树(树的根指针)
@@ -29,6 +17,7 @@ int main() {
     // 建树就是修改树指针指向新地址(一开始是空的根)、因此传入指针引用
     if (createBiTree(&tree) != 1) {
         printf("为二叉树分配内存失败!\n");
+        return ERROR;
     }
 
     // 先序

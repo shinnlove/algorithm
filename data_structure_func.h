@@ -9,6 +9,9 @@
 
 #include "data_structure_common.c"
 
+// 访问一个元素，输出其值。
+Status visit(TElemType e);
+
 // 栈的基本操作函数声明
 
 // 构造一个空栈sp
@@ -54,3 +57,15 @@ Status inOrderTraverse(BiTree root, Status *(Visit)(TElemType e));
 
 // 后根遍历二叉树(递归)
 Status postOrderTraverseRecursive(BiTree root, Status *(Visit)(TElemType e));
+
+Status createBiThrTree(BiThrTree *root);
+
+// 对线索二叉树进行线索化
+Status inOrderThreading(BiThrTree* tree, BiThrTree root);
+
+// 中序递归线索化二叉树
+void inThreading(BiThrTree* current, BiThrTree* pre);
+
+// 中序遍历线索二叉树
+Status inOrderTraverse_Thr(BiThrTree root, Status *(Visit)(TElemType e));
+
