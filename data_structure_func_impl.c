@@ -275,3 +275,31 @@ Status inOrderTraverse(BiTree root, Status *(Visit)(TElemType e)) {
 
     return OK;
 }
+
+/**
+ * 后根顺序遍历二叉树。
+ *
+ * @param root
+ * @param Visit
+ * @return
+ */
+Status postOrderTraverseRecursive(BiTree root, Status *(Visit)(TElemType e)) {
+
+    // 空树或某层递归遇到叶子节点
+    if (root == NULL) {
+        return OK;
+    }
+
+    // 递归访问左子树
+    postOrderTraverseRecursive(root->lchild, Visit);
+
+    // 递归访问右子树
+    postOrderTraverseRecursive(root->rchild, Visit);
+
+    // 后根访问自己
+    Visit(root->data);
+
+    return OK;
+
+}
+

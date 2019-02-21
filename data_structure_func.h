@@ -52,3 +52,5 @@ Status inOrderTraverseRecursive(BiTree root, Status *(Visit)(TElemType e));
 // 中根遍历二叉树(非递归)
 Status inOrderTraverse(BiTree root, Status *(Visit)(TElemType e));
 
+// 后根遍历二叉树(递归)
+Status postOrderTraverseRecursive(BiTree root, Status *(Visit)(TElemType e));

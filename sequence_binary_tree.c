@@ -43,5 +43,9 @@ int main() {
     printf("中序非递归遍历二叉树开始：\n");
     inOrderTraverse(tree, v);
 
+    // 后序
+    printf("后序遍历二叉树开始：\n");
+    postOrderTraverseRecursive(tree, v);
+
     return 0;
 }
