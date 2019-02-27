@@ -27,7 +27,7 @@ void print_sort_result(SqListPoint list) {
         printf("%d ", list->r[j].key);
     }
 
-    printf("\n");
+    printf("\n\n");
 }
 
 void insert_sort(SqListPoint list) {
@@ -52,6 +52,31 @@ void insert_sort(SqListPoint list) {
             // 再把哨兵插入到可覆写的正确位置
             // 此时j已经是0
             list->r[j + 1] = list->r[0];
+        }
+    }
+}
+
+void select_sort(SqListPoint list) {
+    int i, j, min, temp;
+    // 比较只要进行到最后第二个元素
+    for (i = 1; i < list->length; i++) {
+
+        // 一趟比较开始位置默认是当前最小值
+        min = i;
+
+        // 每一趟比较都和数组后边位置开始比
+        for (j = i + 1; j <= list->length; j++) {
+            if (list->r[min].key > list->r[j].key) {
+                // 交换
+                min = j;
+            }
+        }
+
+        // 不是原来的那个值，就交换
+        if (min != i) {
+            temp = list->r[min].key;
+            list->r[min].key = list->r[i].key;
+            list->r[i].key = temp;
         }
     }
 }
@@ -100,7 +125,7 @@ void counting_sort(SqListPoint list) {
         }
     }
 
-    printf("\n");
+    printf("\n\n");
 }
 
 int main() {
@@ -115,6 +140,10 @@ int main() {
     random_init(sp);
     // 直接插入排序
     insert_sort(sp);
+    print_sort_result(sp);
+
+    random_init(sp);
+    select_sort(sp);
     print_sort_result(sp);
 
     random_init(sp);

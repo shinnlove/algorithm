@@ -54,6 +54,13 @@ void print_sort_result(SqListPoint list);
 void insert_sort(SqListPoint list);
 
 /**
+ * 选择交换排序
+ *
+ * @param list
+ */
+void select_sort(SqListPoint list);
+
+/**
  * 计数排序。
  *
  * @param list
