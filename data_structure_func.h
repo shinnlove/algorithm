@@ -61,11 +61,25 @@ Status postOrderTraverseRecursive(BiTree root, Status *(Visit)(TElemType e));
 Status createBiThrTree(BiThrTree *root);
 
 // 对线索二叉树进行线索化
-Status inOrderThreading(BiThrTree* tree, BiThrTree root);
+Status inOrderThreading(BiThrTree *tree, BiThrTree root);
 
 // 中序递归线索化二叉树
-void inThreading(BiThrTree* current, BiThrTree* pre);
+void inThreading(BiThrTree *current, BiThrTree *pre);
 
 // 中序遍历线索二叉树
 Status inOrderTraverse_Thr(BiThrTree root, Status *(Visit)(TElemType e));
 
+// AVL二叉树右旋
+void R_Rotate(BSTree *root);
+
+// AVL二叉树左旋
+void L_Rotate(BSTree *root);
+
+// AVL调整左子树
+void leftBalance(BSTree *root);
+
+// AVL调整右子树
+void rightBalance(BSTree *root);
+
+// 插入调整AVL树
+Status insertAVL(BSTree *root, TElemType e, Boolean *taller);

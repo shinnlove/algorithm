@@ -12,11 +12,19 @@
 #define STACK_INIT_SIZE 100
 #define STACK_INCREMENT 10
 
+// AVL树左高、平衡和右高，左深度减右深度差值
+#define LH +1
+#define EH 0
+#define RH -1
+
 #define TElemType int
 #define BiTNodeLEN sizeof(BiTNode)
 #define BiThrNodeLEN sizeof(BiThrNode)
+#define BSTNodeLEN sizeof(BSTNode)
 
 typedef int Status;
+// C语言没有Boolean类型，所以预定义TRUE/FALSE来配合Boolean使用
+typedef int Boolean;
 
 // 二叉树
 typedef struct BiTNode {
@@ -48,3 +56,9 @@ typedef struct BiThrNode {
     enum PointTag LTag, RTag; // 左右指针标记
 } BiThrNode, *BiThrTree;
 
+// AVL平衡二叉树
+typedef struct BSTNode {
+    TElemType data;
+    int bf;
+    struct BSTNode *lchild, *rchild;
+}BSTNode, *BSTree;

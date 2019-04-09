@@ -480,3 +480,215 @@ Status inOrderTraverse_Thr(BiThrTree root, Status *(Visit)(TElemType e)) {
     return OK;
 } // inOrderTraverse_Thr
 
+/**
+ * 右旋处理AVL树。
+ *
+ * 对以*root为根的二叉排序树作右旋处理，处理之后root指向新的树根结点，即旋转处理之前的左子树根节点。
+ *
+ * @param root
+ */
+void R_Rotate(BSTree *root) {
+    // lc指向的*root的左子树根节点
+    BSTree lc = (*root)->lchild;
+
+    // lc的右子树挂接为*root的左子树
+    (*root)->lchild = lc->rchild;
+
+    // root指向新的根节点
+    lc->rchild = (*root);
+    (*root) = lc;
+}
+
+/**
+ * 左旋处理AVL树。
+ *
+ * 对以*root为根的二叉排序树作左旋处理，处理之后root指向新的树根结点，即旋转处理之前的右子树根节点。
+ *
+ * @param root
+ */
+void L_Rotate(BSTree *root) {
+    // rc指向的*root的右子树根节点
+    BSTree rc = (*root)->rchild;
+
+    // rc的左子树挂接为*root的右子树
+    (*root)->rchild = rc->lchild;
+
+    // root指向新的根节点
+    rc->lchild = (*root);
+    (*root) = rc;
+}
+
+/**
+ * AVL调整左子树
+ *
+ * 对以指针root所指结点为根的二叉树做平衡旋转处理，本算法结束时，指针root指向新的根节点。
+ *
+ * @param root
+ */
+void leftBalance(BSTree *root) {
+    // 口号：进入左处理函数一个"左"
+    BSTree lc = (*root)->lchild;
+    BSTree rd;
+    switch (lc->bf) {
+        case LH:
+            // 左高：口号"左+左=>右"
+            (*root)->bf = lc->bf = EH;
+            R_Rotate(root);
+            break;
+        case RH:
+            // 右高：口号"左+右=>左+右"
+            rd = lc->rchild;
+            switch (rd->bf) {
+                case LH:
+                    (*root)->bf = RH;
+                    lc->bf = EH;
+                    break;
+                case EH:
+                    (*root)->bf = lc->bf = EH;
+                    break;
+                case RH:
+                    (*root)->bf = EH;
+                    lc->bf = LH;
+                    break;
+            } // switch(rd->bf)
+
+            rd->bf = EH;
+
+            // 对*root的左子树作左旋平衡处理、左的是左孩子结点!
+            L_Rotate((*root)->lchild);
+
+            // 对*root做右旋平衡处理、右的是自己!
+            R_Rotate((*root));
+
+    } // switch (lc->bf)
+}
+
+/**
+ * AVL调整右子树
+ *
+ * 对以指针root所指结点为根的二叉树做平衡旋转处理，本算法结束时，指针root指向新的根节点。
+ *
+ * @param root
+ */
+void rightBalance(BSTree *root) {
+    // 口号：进入右处理函数一个"右"
+    BSTree rc = (*root)->rchild;
+    BSTree ld;
+    switch (rc->bf) {
+        case LH:
+            // 左高：口号"右+左=>右+左"
+            ld = rc->lchild;
+            switch (ld->bf) {
+                case LH:
+                    (*root)->bf = EH;
+                    ld->bf = LH;
+                    break;
+                case EH:
+                    (*root)->bf = ld->bf = EH;
+                    break;
+                case RH:
+                    (*root)->bf = RH;
+                    ld->bf = EH;
+                    break;
+            } // switch(rd->bf)
+
+            ld->bf = EH;
+
+            // 对*root的右子树作右旋平衡处理、右的是右孩子结点!
+            R_Rotate((*root)->rchild);
+
+            // 对*root做左旋平衡处理、左的是自己!
+            L_Rotate((*root));
+
+        case RH:
+            // 右高：口号"右+右=>左"
+            (*root)->bf = ld->bf = EH;
+            L_Rotate(root);
+            break;
+
+    } // switch (lc->bf)
+}
+
+/**
+ * 插入调整AVL树
+ *
+ * @param root
+ * @param e
+ * @param taller
+ * @return
+ */
+Status insertAVL(BSTree *root, TElemType e, Boolean *taller) {
+
+    if (!(*root)) {
+        // 树不存在，插入新根结点、树长高
+        // 这个分支处理：根节点、左右孩子作为根节点的新树，是递归调用的结束分支!
+        (*root) = (BSTree) malloc(BSTNodeLEN);
+        (*root)->data = e;
+        (*root)->lchild = (*root)->rchild = NULL;
+        (*root)->bf = EH;
+        *taller = TRUE;
+    } else {
+        // 根节点存在
+
+        if (e == (*root)->data) {
+            // e == data
+            *taller = FALSE;
+            return FALSE;
+        } else if (e < (*root)->data) {
+            // e < data，插入在左子树上进行
+
+            // 未插入
+            if (!insertAVL((*root)->lchild, e, taller)) return FALSE;
+
+            // 已插入
+            if (*taller) {
+                // 已插入到左子树中且左子树长高
+                switch ((*root)->bf) {
+                    case LH:
+                        leftBalance(*root);
+                        *taller = FALSE;
+                        break;
+                    case EH:
+                        (*root)->bf = LH;
+                        *taller = TRUE;
+                        break;
+                    case RH:
+                        (*root)->bf = EH;
+                        *taller = FALSE;
+                        break;
+                } // switch ((*root)->bf)
+            } // if (*taller)
+
+        } else {
+            // e > data，插入在右子树上进行
+
+            // 未插入
+            if (!insertAVL((*root)->rchild, e, taller)) return FALSE;
+
+            // 已插入
+            if (*taller) {
+                // 已插入到右子树中且右子树长高
+                switch ((*root)->bf) {
+                    case LH:
+                        (*root)->bf = EH;
+                        *taller = FALSE;
+                        break;
+                    case EH:
+                        (*root)->bf = LH;
+                        *taller = TRUE;
+                        break;
+                    case RH:
+                        rightBalance(*root);
+                        *taller = FALSE;
+                        break;
+
+                } // switch ((*root)->bf)
+            } // if (*taller)
+
+        } // else
+
+    } // else
+
+
+    return TRUE;
+}
