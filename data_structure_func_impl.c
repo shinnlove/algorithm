@@ -485,6 +485,9 @@ Status inOrderTraverse_Thr(BiThrTree root, Status *(Visit)(TElemType e)) {
  *
  * 对以*root为根的二叉排序树作右旋处理，处理之后root指向新的树根结点，即旋转处理之前的左子树根节点。
  *
+ * 心诀：
+ * 右旋——新根右挂老根左
+ *
  * @param root
  */
 void R_Rotate(BSTree *root) {
@@ -504,6 +507,9 @@ void R_Rotate(BSTree *root) {
  *
  * 对以*root为根的二叉排序树作左旋处理，处理之后root指向新的树根结点，即旋转处理之前的右子树根节点。
  *
+ * 心诀：
+ * 左旋——新根左挂老根右
+ *
  * @param root
  */
 void L_Rotate(BSTree *root) {
@@ -522,6 +528,10 @@ void L_Rotate(BSTree *root) {
  * AVL调整左子树
  *
  * 对以指针root所指结点为根的二叉树做平衡旋转处理，本算法结束时，指针root指向新的根节点。
+ *
+ * 心诀：
+ * 左平衡左子树左高插在左、左左单右旋、新根右挂老根左；
+ * 左平衡左子树右高插在右、左右左右旋、左挂右来右挂左；
  *
  * @param root
  */
@@ -568,6 +578,10 @@ void leftBalance(BSTree *root) {
  *
  * 对以指针root所指结点为根的二叉树做平衡旋转处理，本算法结束时，指针root指向新的根节点。
  *
+ * 心诀：
+ * 右平衡右子树右高插在右、右右单左旋、新根左挂老根右；
+ * 右平衡右子树左高插在左、右左右左旋、右挂左来左挂右。
+ *
  * @param root
  */
 void rightBalance(BSTree *root) {
@@ -612,6 +626,16 @@ void rightBalance(BSTree *root) {
 /**
  * 插入调整AVL树
  *
+ * AVL平衡调整心诀：
+ * 新叶结点树长高，左右平衡是NULL；
+ * 小插左，大插右，插入长高调平衡；
+ * 左子树右高拉平衡、左子树平衡变左高、左子树左高左平衡；
+ * 右子树左高拉平衡、右子树平衡变右高、右子树右高右平衡；
+ * 左平衡左子树左高插在左、左左单右旋、新根右挂老根左；
+ * 左平衡左子树右高插在右、左右左右旋、左挂右来右挂左；
+ * 右平衡右子树右高插在右、右右单左旋、新根左挂老根右；
+ * 右平衡右子树左高插在左、右左右左旋、右挂左来左挂右。
+ *
  * @param root
  * @param e
  * @param taller
@@ -622,6 +646,8 @@ Status insertAVL(BSTree *root, TElemType e, Boolean *taller) {
     if (!(*root)) {
         // 树不存在，插入新根结点、树长高
         // 这个分支处理：根节点、左右孩子作为根节点的新树，是递归调用的结束分支!
+
+        // 心诀："新叶结点树长高，左右平衡是NULL"
         (*root) = (BSTree) malloc(BSTNodeLEN);
         (*root)->data = e;
         (*root)->lchild = (*root)->rchild = NULL;
@@ -643,16 +669,20 @@ Status insertAVL(BSTree *root, TElemType e, Boolean *taller) {
             // 已插入
             if (*taller) {
                 // 已插入到左子树中且左子树长高
+                // 心诀：插入长高调平衡
                 switch ((*root)->bf) {
                     case LH:
+                        // 心诀：左子树左高左平衡
                         leftBalance(*root);
                         *taller = FALSE;
                         break;
                     case EH:
+                        // 心诀：左子树平衡变左高
                         (*root)->bf = LH;
                         *taller = TRUE;
                         break;
                     case RH:
+                        // 心诀：左子树右高变平衡
                         (*root)->bf = EH;
                         *taller = FALSE;
                         break;
@@ -668,16 +698,20 @@ Status insertAVL(BSTree *root, TElemType e, Boolean *taller) {
             // 已插入
             if (*taller) {
                 // 已插入到右子树中且右子树长高
+                // 心诀：插入长高调平衡
                 switch ((*root)->bf) {
                     case LH:
+                        // 心诀：右子树左高变平衡
                         (*root)->bf = EH;
                         *taller = FALSE;
                         break;
                     case EH:
+                        // 心诀：右子树平衡变右高
                         (*root)->bf = LH;
                         *taller = TRUE;
                         break;
                     case RH:
+                        // 心诀：右子树右高右平衡
                         rightBalance(*root);
                         *taller = FALSE;
                         break;
